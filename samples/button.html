@@ -1,0 +1,12 @@
+<button (click)="toggleDescriptionClick()" mat-button color="accent"
+    class="rkt-ButtonLink rkt-ButtonLink--is-small todo-item-hint-button"
+    [attr.data-rmqa]="'toDo-card--showDescription'">
+    <span color="test" class="rkt-Body-16 rkt-Spacing--mh0">{{content.viewDescriptionLabel}}</span>
+    <mat-icon svgIcon="expand_more-default" iconPositionEnd class="rkt-ButtonLink__icon"></mat-icon>
+</button>
+<button (click)="toggleDescriptionClick()" mat-button color="primary"
+    class="rkt-ButtonLink rkt-ButtonLink--is-large todo-item-hint-button"
+    [attr.data-rmqa]="'toDo-card--showDescription'">
+    <span color="test" class="rkt-Body-16 rkt-Spacing--mh0">{{content.viewDescriptionLabel}}</span>
+    <mat-icon svgIcon="expand_more-default" iconPositionEnd class="rkt-ButtonLink__icon"></mat-icon>
+</button>
