@@ -20,6 +20,15 @@ const SIZE_MAP = {
   'rkt-ButtonLink--is-large': 'lg',
 };
 
+const IMPORT_REPLACEMENTS = {
+  '@angular/material/button': {
+    module: '@rds/angular-button',
+    symbolMap: {
+      'MatButtonModule': 'RktButton'
+    }
+  },
+};
+
 const transformHtml = (html: string): string => {
   try {
     const doc = parse(html.trim());
@@ -65,7 +74,40 @@ const transformHtml = (html: string): string => {
   }
 };
 
+const transformImports = (sourceFile: SourceFile) => {
+  sourceFile.getImportDeclarations().forEach((importDecl) => {
+    const moduleSpecifier = importDecl.getModuleSpecifierValue();
+    const replacement = IMPORT_REPLACEMENTS[moduleSpecifier];
+
+    if (replacement) {
+      // Update module specifier
+      importDecl.setModuleSpecifier(replacement.module);
+
+      // Update named imports
+      const namedImports = importDecl.getNamedImports();
+      namedImports.forEach((namedImport) => {
+        const importName = namedImport.getName();
+        if (replacement.symbolMap[importName]) {
+          namedImport.setName(replacement.symbolMap[importName]);
+        }
+      });
+
+      // If there are no named imports, add them
+      if (namedImports.length === 0) {
+        const firstValue = Object.values(replacement.symbolMap)[0];
+        if (firstValue) {
+          importDecl.addNamedImport(firstValue);
+        }
+      }
+    }
+  });
+};
+
 export function handleSourceFile(sourceFile: SourceFile): string | undefined {
+  // Handle imports first
+  transformImports(sourceFile);
+
+  // Handle template transformations
   sourceFile
     .getDescendantsOfKind(SyntaxKind.Decorator)
     .forEach((decorator) => {
@@ -76,17 +118,34 @@ export function handleSourceFile(sourceFile: SourceFile): string | undefined {
         const [argument] = decoratorCall.getArguments();
         if (!argument) return;
 
+        // Handle template transformation
         const template = argument.getFirstDescendantByKind(SyntaxKind.TemplateExpression) 
           || argument.getFirstDescendantByKind(SyntaxKind.NoSubstitutionTemplateLiteral)
           || argument.getFirstDescendantByKind(SyntaxKind.StringLiteral);
 
         if (template) {
           const originalTemplate = template.getText();
-          // Remove backticks or quotes from the template string
           const cleanTemplate = originalTemplate.replace(/^[`'"]([\s\S]*)[`'"]$/, '$1');
           const transformedTemplate = transformHtml(cleanTemplate);
-          
           template.replaceWithText(`\`${transformedTemplate}\``);
+        }
+
+        // Handle imports array transformation
+        const importsProperty = argument.getFirstDescendantByKind(SyntaxKind.PropertyAssignment);
+        if (importsProperty && importsProperty.getName() === 'imports') {
+          const arrayLiteral = importsProperty.getFirstDescendantByKind(SyntaxKind.ArrayLiteralExpression);
+          if (arrayLiteral) {
+            const elements = arrayLiteral.getElements();
+            elements.forEach(element => {
+              const text = element.getText();
+              // Check all import replacements for matching symbols
+              Object.values(IMPORT_REPLACEMENTS).forEach(replacement => {
+                if (Object.keys(replacement.symbolMap).includes(text)) {
+                  element.replaceWithText(replacement.symbolMap[text]);
+                }
+              });
+            });
+          }
         }
       }
     });
