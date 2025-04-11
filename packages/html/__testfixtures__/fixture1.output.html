@@ -1,0 +1,7 @@
+<button (click)="toggleDescriptionClick()" class="todo-item-hint-button" [attr.data-rmqa]="'toDo-card--showDescription'"
+  rkt-button variant="accent" size="sm">
+  <span color="test" class="rkt-Body-16 rkt-Spacing--mh0">{{
+    content.viewDescriptionLabel
+    }}</span>
+  <mat-icon svgIcon="expand_more-default" iconPositionEnd class="rkt-ButtonLink__icon"></mat-icon>
+</button>

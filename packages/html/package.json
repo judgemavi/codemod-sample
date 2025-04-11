@@ -1,0 +1,22 @@
+{
+  "name": "html",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "mod": "jscodeshift --extensions=html -t transformers/button.ts samples --verbose=2",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jscodeshift": "^17.3.0",
+    "@types/node": "^22.14.0",
+    "vitest": "^1.0.1",
+    "jscodeshift": "^17.3.0",
+    "node-html-parser": "^7.0.1",
+    "@codemod.com/codemod-utils": "*"
+  }
+}

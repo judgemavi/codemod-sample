@@ -1,20 +1,16 @@
 {
   "name": "codemod-sample",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "mod": "jscodeshift --extensions=ts -t transformers/button.ts samples --verbose=2"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "jscodeshift": "^17.3.0",
-    "node-html-parser": "^7.0.1"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@types/jscodeshift": "^17.3.0",
-    "@types/node": "^22.14.0"
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
+  },
+  "packageManager": "pnpm@8.15.6",
+  "engines": {
+    "node": ">=18"
   }
 }

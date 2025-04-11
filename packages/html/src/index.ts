@@ -28,7 +28,9 @@ const transformHtml = (html: string): string => {
     );
 
     matButtons.forEach((button) => {
-      const cssBased = button.classList.contains(CLASS_SELECTOR);
+      const cssBased =
+        button.classList.contains(CLASS_SELECTOR) &&
+        !button.hasAttribute(ATTR_SELECTOR);
 
       if (button.hasAttribute(ATTR_SELECTOR)) {
         button.setAttribute(NEW_ATTR_SELECTOR, '');
@@ -67,65 +69,13 @@ const transformHtml = (html: string): string => {
 
 export default function transformer(
   file: FileInfo,
-  api: API,
+  api: API
 ): string | undefined {
   const src = file.source;
 
   try {
     if (file.path.endsWith('.html')) {
       return transformHtml(src);
-    }
-    if (file.path.endsWith('.ts')) {
-      const j = api.jscodeshift.withParser('ts');
-      const root = j(src);
-      let modified = false;
-      root
-        .find(j.Decorator)
-        .filter((path) => {
-          const expr = path.value.expression;
-          return (
-            j.CallExpression.check(expr) &&
-            j.Identifier.check(expr.callee) &&
-            expr.callee.name === 'Component'
-          );
-        })
-        .forEach((path) => {
-          const expr = path.value.expression;
-          if (!j.CallExpression.check(expr)) return;
-
-          const arg = expr.arguments[0];
-          if (!j.ObjectExpression.check(arg)) return;
-
-          // Find the template property
-          const templateProp = arg.properties.find(
-            (prop) =>
-              j.Property.check(prop) &&
-              j.Identifier.check(prop.key) &&
-              prop.key.name === 'template'
-          );
-
-          if (!templateProp || !j.Property.check(templateProp)) return;
-
-          // Handle template string or literal
-          if (j.TemplateLiteral.check(templateProp.value)) {
-            const oldValue = templateProp.value.quasis[0].value.raw;
-            const newValue = transformHtml(oldValue);
-            if (oldValue !== newValue) {
-              templateProp.value.quasis[0].value.raw = newValue;
-              templateProp.value.quasis[0].value.cooked = newValue;
-              modified = true;
-            }
-          } else if (j.StringLiteral.check(templateProp.value)) {
-            const oldValue = templateProp.value.value;
-            const newValue = transformHtml(oldValue);
-            if (oldValue !== newValue) {
-              templateProp.value.value = newValue;
-              modified = true;
-            }
-          }
-        });
-
-      return modified ? root.toSource() : src;
     }
     return src;
   } catch (error) {
