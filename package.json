@@ -4,15 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "mod": "jscodeshift --extensions=html -t transformers/button.ts samples"
+    "mod": "jscodeshift --parser=ts --extensions=html,ts -t transformers/button.ts samples --verbose=2 --print"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jscodeshift": "^17.3.0"
+    "jscodeshift": "^17.3.0",
+    "node-html-parser": "^7.0.1"
   },
   "devDependencies": {
-    "@types/jscodeshift": "^17.3.0"
+    "@types/jscodeshift": "^17.3.0",
+    "@types/node": "^22.14.0"
   }
 }
