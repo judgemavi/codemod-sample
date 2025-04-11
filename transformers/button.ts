@@ -23,34 +23,37 @@ const SIZE_MAP = {
 const transformHtml = (html: string): string => {
   try {
     const doc = parse(html.trim());
-    const matButtons = doc.querySelectorAll('button');
+    const matButtons = doc.querySelectorAll(
+      `[${ATTR_SELECTOR}], .${CLASS_SELECTOR}`
+    );
 
     matButtons.forEach((button) => {
-      if (button.hasAttribute('mat-button')) {
-        // Set rkt-button attribute
+      const cssBased = button.classList.contains(CLASS_SELECTOR);
+
+      if (button.hasAttribute(ATTR_SELECTOR)) {
         button.setAttribute(NEW_ATTR_SELECTOR, '');
         button.removeAttribute(ATTR_SELECTOR);
+      }
 
-        // Handle color/variant
-        if (button.hasAttribute(COLOR_ATTR)) {
-          const color = button.getAttribute(COLOR_ATTR);
-          if (color && VARIANT_MAP[color]) {
-            button.setAttribute(NEW_COLOR_ATTR, VARIANT_MAP[color]);
-            button.removeAttribute(COLOR_ATTR);
-          }
+      if (button.hasAttribute(COLOR_ATTR)) {
+        const color = button.getAttribute(COLOR_ATTR);
+        if (color && VARIANT_MAP[color]) {
+          button.setAttribute(NEW_COLOR_ATTR, VARIANT_MAP[color]);
+          button.removeAttribute(COLOR_ATTR);
         }
+      }
 
-        // Handle size classes
-        const classList = button.classList.toString().split(' ');
-        classList.forEach((cls) => {
-          if (SIZE_MAP[cls]) {
-            button.classList.remove(cls);
-            button.setAttribute(NEW_SIZE_ATTR, SIZE_MAP[cls]);
-          }
-        });
+      const classList = button.classList.toString().split(' ');
+      classList.forEach((cls) => {
+        if (SIZE_MAP[cls]) {
+          button.classList.remove(cls);
+          button.setAttribute(NEW_SIZE_ATTR, SIZE_MAP[cls]);
+        }
+      });
 
-        // Clean up ButtonLink classes
-        button.classList.remove(CLASS_SELECTOR);
+      button.classList.remove(CLASS_SELECTOR);
+      if (cssBased) {
+        button.classList.add(NEW_CLASS_SELECTOR);
       }
     });
 
@@ -77,8 +80,7 @@ export default function transformer(
     if (file.path.endsWith('.ts')) {
       const root = j(src);
       let modified = false;
-      console.log('Transforming TypeScript file:', root.find(j.Decorator));  
-      // Find Component decorators and their template properties
+      console.log('Transforming TypeScript file:', root.find(j.Decorator));
       root
         .find(j.Decorator)
         .filter((path) => {

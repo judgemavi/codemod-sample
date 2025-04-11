@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "mod": "jscodeshift --parser=ts --extensions=html,ts -t transformers/button.ts samples --verbose=2 --print"
+    "mod": "jscodeshift --extensions=html -t transformers/button.ts samples --verbose=2"
   },
   "keywords": [],
   "author": "",
