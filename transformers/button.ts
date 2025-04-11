@@ -1,4 +1,4 @@
-import { FileInfo, API, Options } from 'jscodeshift';
+import { FileInfo, API } from 'jscodeshift';
 import { parse } from 'node-html-parser';
 
 const ATTR_SELECTOR = 'mat-button';
@@ -68,9 +68,7 @@ const transformHtml = (html: string): string => {
 export default function transformer(
   file: FileInfo,
   api: API,
-  options: Options
 ): string | undefined {
-  const j = api.jscodeshift;
   const src = file.source;
 
   try {
@@ -78,9 +76,9 @@ export default function transformer(
       return transformHtml(src);
     }
     if (file.path.endsWith('.ts')) {
+      const j = api.jscodeshift.withParser('ts');
       const root = j(src);
       let modified = false;
-      console.log('Transforming TypeScript file:', root.find(j.Decorator));
       root
         .find(j.Decorator)
         .filter((path) => {
